@@ -68,6 +68,7 @@ bool isQueueEmpty(){
 }
 
 void addElement(Cell c) {
+    //TODO: Check if queue is full.
     printf("Adding (%u,%u) in position %u. Queue size: %u. \n", c.x, c.y, q.last % q.size, q.size);
     q.last = (q.last + 1) % q.size;
     if (!isQueueEmpty()) q.queue[q.last] = c; //Add next to the current last one. Wrap if we arrive to the end.
