@@ -118,23 +118,43 @@ void deleteQueue(Queue* q) {
 
 //Search
 
-void printBoolMap(bool* visitedMap, unsigned int heigth, unsigned int width) {
+void printVisitedMap(unsigned int* visitedMap, unsigned int heigth, unsigned int width) {
     unsigned int i, j;
     for (i = 0; i < heigth; ++i) {
         for (j = 0; j < width; ++j) {
-            fprintf(outChannel,"%u, ", visitedMap[i*width + j]);
+            fprintf(outChannel,"%d, ", visitedMap[i*width + j]);
         }
         fprintf(outChannel,"\n");
     }
 }
 
 
+void printFinalTrace(unsigned int* visitedMap, Cell current, unsigned int width) {
+    unsigned int currentId = current.y*width + current.x;
+
+    fprintf(outChannel, "Shortest path: (%u, %u)", currentId%3, currentId/3);
+
+    while (currentId != visitedMap[currentId]) { //while it's not the starting node.
+        currentId = visitedMap[currentId];
+        fprintf(outChannel, " <- (%u, %u)", currentId%3, currentId/3);
+    }
+    fprintf(outChannel, "\n");
+}
 
 
-Cell BFS(const Map* map, Cell current, unsigned int target) {
+Cell BFS(const Map* map, Cell current, unsigned int target) {    
+    int* visitedMap;
+    unsigned int currentId, mapSize, i;
+
+
     fprintf(outChannel, "Map dim: %u,%u", map->width,map->heigth);
-    bool* visitedMap;
-    visitedMap = calloc(map->width*map->heigth,sizeof(bool));//Reserve memory of mapsize
+
+    mapSize = map->width*map->heigth;
+    visitedMap = calloc(mapSize,sizeof(unsigned int));//Reserve memory of mapsize
+    for (i = 0; i < mapSize; ++i) {
+        visitedMap[i] = -1;
+    }
+
 
 
 
@@ -144,49 +164,51 @@ Cell BFS(const Map* map, Cell current, unsigned int target) {
 
     //cleanQueue(q); //This can be substituted by a instantation of the queue.
 
-    visitedMap[current.y*map->width + current.x] = true;
+
 
     fprintf(outChannel, "\n\n");
-    printMap(map);
-    fprintf(outChannel,"Starting BFS\n First: %u", map->map);
-    fprintf(outChannel,"Starting BFS\n First: %u", map->map[current.y*map->width + current.x]);
-    printMap(map);
 
-    while (map->map[current.y*map->width + current.x] != target) {
+
+
+    currentId = current.y*map->width + current.x;
+    visitedMap[currentId] = currentId;
+    fprintf(outChannel,"Starting BFS\n First: %u", map->map[currentId]);
+
+    while (map->map[currentId] != target) {
         fprintf(outChannel,"Visiting (%u,%u) = %u\n", current.x, current.y, map->map[current.y*map->width + current.x]);
-        printBoolMap(visitedMap,map->heigth, map->width);
+        printVisitedMap(visitedMap,map->heigth, map->width);
 
 
         tmp.x = current.x-1;
         tmp.y = current.y;
-        if (current.x > 0 && !visitedMap[tmp.y*map->width + tmp.x]) {
+        if (current.x > 0 && visitedMap[tmp.y*map->width + tmp.x] < 0) {
             fprintf(outChannel,"-Expanding (%u,%u)\n", tmp.x, tmp.y);
             addElement(&q, tmp);
-            visitedMap[tmp.y*map->width + tmp.x] = true;
+            visitedMap[tmp.y*map->width + tmp.x] = currentId;
         }
 
         tmp.x = current.x+1;
         tmp.y = current.y;
-        if (current.x+1 < map->width && !visitedMap[tmp.y*map->width + tmp.x]) {
+        if (current.x+1 < map->width && visitedMap[tmp.y*map->width + tmp.x] < 0) {
             fprintf(outChannel,"-Expanding (%u,%u)\n", tmp.x, tmp.y);
             addElement(&q,tmp);
-            visitedMap[tmp.y*map->width + tmp.x] = true;
+            visitedMap[tmp.y*map->width + tmp.x] = currentId;
         }
 
         tmp.x = current.x;
         tmp.y = current.y-1;
-        if (current.y > 0 && !visitedMap[tmp.y*map->width + tmp.x]) {
+        if (current.y > 0 && visitedMap[tmp.y*map->width + tmp.x] < 0) {
             fprintf(outChannel,"-Expanding (%u,%u)\n", tmp.x, tmp.y);
             addElement(&q,tmp);
-            visitedMap[tmp.y*map->width + tmp.x] = true;
+            visitedMap[tmp.y*map->width + tmp.x] = currentId;
         }
 
         tmp.x = current.x;
         tmp.y = current.y+1;
-        if (current.y+1 < map->heigth && !visitedMap[tmp.y*map->width + tmp.x]) {
+        if (current.y+1 < map->heigth && visitedMap[tmp.y*map->width + tmp.x] < 0) {
             fprintf(outChannel,"-Expanding (%u,%u)\n", tmp.x, tmp.y);
             addElement(&q,tmp);
-            visitedMap[tmp.y*map->width + tmp.x] = true;
+            visitedMap[tmp.y*map->width + tmp.x] = currentId;
         }
 
 
@@ -194,11 +216,17 @@ Cell BFS(const Map* map, Cell current, unsigned int target) {
 
         //Get new element
         current = getNext(&q);
+        currentId = current.y*map->width + current.x;
         //fprintf(outChannel,"New current (%u,%u)\n", current.x,current.y);
 
         fprintf(outChannel,"\n\n");
     }
     //FOUND!
+
+    printVisitedMap(visitedMap,map->heigth, map->width);
+
+    printFinalTrace(visitedMap, current, map->width);
+
 
     free(visitedMap);
     //deleteQueue(&q); //If we do this, the code crashes... Double delete??
