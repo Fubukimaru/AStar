@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+//Resources
+//Big text: http://patorjk.com/software/taag/#p=display&f=Doom&t=MAP
+//Minheap insertion: https://youtu.be/uzqKs5t9_gk
+//Minheap and binary representation: http://www.cse.hut.fi/en/research/SVG/TRAKLA2/tutorials/heap_tutorial/index.html
+
 typedef struct {
     unsigned int x, y;
 } Cell;
@@ -24,6 +29,14 @@ typedef struct {
 
 
 FILE* outChannel;
+
+
+//___  ___  ___  ______
+//|  \/  | / _ \ | ___ \
+//| .  . |/ /_\ \| |_/ /
+//| |\/| ||  _  ||  __/
+//| |  | || | | || |
+//\_|  |_/\_| |_/\_|
 
 //Map operators
 void readMap (Map* map, const char* file_name)
@@ -300,7 +313,8 @@ int main(void)
 
     Map map;
 
-    readMap(&map, "/home/agutierrez/workspace/Astar/mat.txt");
+    //readMap(&map, "/home/agutierrez/workspace/Astar/mat.txt");
+    readMap(&map, "/home/fubu/workspace/AStar/mat.txt");
     printMap(&map);
 
 
